@@ -1,0 +1,1 @@
+export default function Dashboard(){return <div className='space-y-4'><h1 className='text-3xl font-bold'>لوحة الإدارة</h1><div className='grid md:grid-cols-3 gap-4'><div className='honey-card'>إدارة المنتجات</div><div className='honey-card'>إدارة الموظفين</div><div className='honey-card'>عرض التقارير</div></div></div>}

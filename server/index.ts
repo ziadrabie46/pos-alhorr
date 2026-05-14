@@ -1,0 +1,10 @@
+import express from 'express'; import session from 'express-session'; import passport from 'passport'; import { Strategy } from 'passport-local';
+import authRoutes from './routes/auth.js'; import userRoutes from './routes/users.js'; import productRoutes from './routes/products.js'; import invoiceRoutes from './routes/invoices.js'; import reportRoutes from './routes/reports.js';
+import { hashPassword, verifyPassword } from './services/auth.service.js';
+const app=express(); app.use(express.json()); app.use(session({secret:process.env.SESSION_SECRET||'dev',resave:false,saveUninitialized:false,cookie:{httpOnly:true,sameSite:'lax',secure:false}})); app.use(passport.initialize()); app.use(passport.session());
+const localUsers=[{id:1,fullName:'مدير النظام',username:'admin',password:hashPassword('admin123'),role:'admin',isActive:true}];
+passport.use(new Strategy((username,password,done)=>{const u=localUsers.find(u=>u.username===username&&u.isActive); if(!u||!verifyPassword(password,u.password)) return done(null,false); return done(null,u);}));
+passport.serializeUser((u:any,d)=>d(null,u.id)); passport.deserializeUser((id,done)=>done(null,localUsers.find(u=>u.id===id)));
+app.use('/api',authRoutes); app.use('/api/users',userRoutes); app.use('/api/products',productRoutes); app.use('/api/invoices',invoiceRoutes); app.use('/api/reports',reportRoutes);
+app.use((err:any,_req:any,res:any,_next:any)=>res.status(500).json({message:err.message||'خطأ داخلي'}));
+app.listen(3000,()=>console.log('server on 3000'));
